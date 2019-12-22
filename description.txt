@@ -1,0 +1,8 @@
+This mod cycles ammunition for your currently held ranged weapon with the tap of a button.
+It will only cycle ammunition that the weapon uses.
+
+Compatible with other mods, probably. (At least with Thorium)
+
+Future Plans:
+* Ammo selection wheel
+* Firing Patterns

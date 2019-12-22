@@ -1,0 +1,3 @@
+displayName = Ammo Cycle
+author = Deculsion
+version = 0.1
