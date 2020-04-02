@@ -58,7 +58,8 @@ namespace AmmoCycle
 
             // Cycles ammo in their slots by shifting first ammo item in inventory to the last place
             // Then push other ammo items forward to replace previous slot.
-            
+            // TODO: Make rotations play a sound
+            // TODO: Rotate additional times if there are multiple stacks of the same ammo.
 
             if (forward)
             {
