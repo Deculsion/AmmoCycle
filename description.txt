@@ -3,7 +3,7 @@ It will only cycle ammunition that the weapon uses.
 
 Compatible with other mods, probably.
 
-v0.1.2.2:
+v0.1.2.3:
 * Cycling now skips to the next stack of ammo different from the currently used ammo
 * Cycling now plays a sound to indicate ammo has changed
 
