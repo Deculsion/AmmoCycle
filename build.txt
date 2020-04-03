@@ -1,4 +1,4 @@
 displayName = Ammo Cycle
 author = Deculsion
-version = 0.1.2.2a
+version = 0.1.2.2.1
 homepage = https://github.com/Deculsion/AmmoCycle.git
