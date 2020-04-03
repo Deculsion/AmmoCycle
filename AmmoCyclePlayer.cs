@@ -9,8 +9,6 @@ using Terraria.ModLoader;
 using Terraria.GameInput;
 using Terraria.ID;
 
-
-
 namespace AmmoCycle {
 	class AmmoCyclePlayer : ModPlayer {
 
@@ -18,6 +16,7 @@ namespace AmmoCycle {
 		private const int inventoryLength = 50; 
 		private const int ammoSlotStart = 54;
 		private const int ammoSlotEnd = 58;
+		private const Boolean DEBUG = false;
 
 		public override void ProcessTriggers(TriggersSet triggersSet) {
 
@@ -84,7 +83,7 @@ namespace AmmoCycle {
 
 			}
 
-			mod.Logger.DebugFormat("currentAmmo  type: {0} | currentAmmo index: {1}", currentAmmo.type, currentAmmoi);
+			if (DEBUG) mod.Logger.DebugFormat("currentAmmo  type: {0} | currentAmmo index: {1}", currentAmmo.type, currentAmmoi);
 
 			if (ammoList.Count <= 1) {
 				return;
@@ -107,7 +106,7 @@ namespace AmmoCycle {
 				cycles = calculateRotationsBack(ammoList);
 			}
 
-			mod.Logger.DebugFormat("Cycles: {0}", cycles);
+			if (DEBUG) mod.Logger.DebugFormat("Cycles: {0}", cycles);
 
 			if (cycles == 0) {
 				return;
@@ -158,7 +157,7 @@ namespace AmmoCycle {
 			for (int i = amount; i < ammoList.Count; i++) {
 				inventory[ammoList[i - amount].Item2] = ammoList[i].Item1;
 
-				mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
+				if (DEBUG) mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
 						ammoList[i - 1].Item2, ammoList[i].Item2, ammoList[i - 1].Item1.type, ammoList[i].Item1.type);
 			}
 
@@ -167,7 +166,7 @@ namespace AmmoCycle {
 			for (int i = 0; i < amount; i++) {
 				inventory[ammoList[bringForward].Item2] = tempAmmoArr[i].Item1;
 
-				mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
+				if (DEBUG) mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
 						ammoList[bringForward].Item2, tempAmmoArr[i].Item2, ammoList[bringForward].Item1.type, tempAmmoArr[i].Item1.type);
 
 				bringForward++;
