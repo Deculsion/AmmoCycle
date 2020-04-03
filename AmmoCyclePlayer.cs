@@ -9,13 +9,15 @@ using Terraria.ModLoader;
 using Terraria.GameInput;
 using Terraria.ID;
 
+
+
 namespace AmmoCycle {
 	class AmmoCyclePlayer : ModPlayer {
 
-		private const int inventoryLength = 50;
+		// Magic numbers for inventory slot indexes
+		private const int inventoryLength = 50; 
 		private const int ammoSlotStart = 54;
 		private const int ammoSlotEnd = 58;
-	
 
 		public override void ProcessTriggers(TriggersSet triggersSet) {
 
@@ -99,15 +101,16 @@ namespace AmmoCycle {
 			int cycles;
 			if (forward) {
 				cycles = calculateRotations(ammoList);
-				mod.Logger.DebugFormat("Cycles: {0}", cycles);
-
-				if (cycles == 0) {
-					return;
-				}
 			}
 			
 			else {
 				cycles = calculateRotationsBack(ammoList);
+			}
+
+			mod.Logger.DebugFormat("Cycles: {0}", cycles);
+
+			if (cycles == 0) {
+				return;
 			}
 
 			Rotate(forward, cycles, ammoList);
@@ -124,14 +127,17 @@ namespace AmmoCycle {
 			return ret == ammoList.Count ? 0 : ret;
 		}
 
+		// Backwards rotation is just forward rotation of (.count - n) steps.
 		private int calculateRotationsBack(List<Tuple<Item, int>> ammoList) {
 			int ret = ammoList.Count - 1;
 
-			while (ret > 0 && ammoList[ret].Item1.type == ammoList[ret - 1].Item1.type) {
+			while (ret > 0 
+				&& (ammoList[ret].Item1.type == ammoList[ammoList.Count - 1].Item1.type 
+				|| ammoList[ret].Item1.type == ammoList[0].Item1.type)) {
 				ret--;
 			}
 
-			return ret;
+			return ++ret;
 		}
 		
 		private void Rotate(bool forward, int amount, List<Tuple<Item, int>> ammoList) {
@@ -141,41 +147,35 @@ namespace AmmoCycle {
 			
 			Item[] inventory = player.inventory;
 
-			if (forward) {
-				Tuple<Item, int>[] tempAmmoArr = new Tuple<Item,int>[amount];
+			Tuple<Item, int>[] tempAmmoArr = new Tuple<Item,int>[amount];
 
-				// Add first n elements to be sent to back to temp array
-				for (int i = 0; i < amount; i++) {
-					tempAmmoArr[i] = ammoList[i];
-				}
-
-				// Bring forward (ammoList.count - n) number of elements to front
-				for (int i = amount; i < ammoList.Count; i++) {
-					inventory[ammoList[i - amount].Item2] = ammoList[i].Item1;
-
-					mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
-							ammoList[i - 1].Item2, ammoList[i].Item2, ammoList[i - 1].Item1.type, ammoList[i].Item1.type);
-				}
-
-				// Replace last n elements of ammoList with original n elements.
-				int bringForward = ammoList.Count - amount;
-				for (int i = 0; i < amount; i++) {
-					inventory[ammoList[bringForward].Item2] = tempAmmoArr[i].Item1;
-
-					mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
-							ammoList[bringForward].Item2, tempAmmoArr[i].Item2, ammoList[bringForward].Item1.type, tempAmmoArr[i].Item1.type);
-
-					bringForward++;
-				}
+			// Add first n elements to be sent to back to temp array
+			for (int i = 0; i < amount; i++) {
+				tempAmmoArr[i] = ammoList[i];
 			}
 
-			else {
-				Tuple<Item, int>[] tempAmmoArr = new Tuple<Item, int>[amount];
+			// Bring forward (ammoList.count - n) number of elements to front
+			for (int i = amount; i < ammoList.Count; i++) {
+				inventory[ammoList[i - amount].Item2] = ammoList[i].Item1;
 
-				for ()
+				mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
+						ammoList[i - 1].Item2, ammoList[i].Item2, ammoList[i - 1].Item1.type, ammoList[i].Item1.type);
+			}
+
+			// Replace last n elements of ammoList with original n elements.
+			int bringForward = ammoList.Count - amount;
+			for (int i = 0; i < amount; i++) {
+				inventory[ammoList[bringForward].Item2] = tempAmmoArr[i].Item1;
+
+				mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
+						ammoList[bringForward].Item2, tempAmmoArr[i].Item2, ammoList[bringForward].Item1.type, tempAmmoArr[i].Item1.type);
+
+				bringForward++;
 			}
 		}
-		
+
+		// Legacy code (v0.1.2.1)
+		// TODO: Create mod config to enable legacy behaviour
 		private void Rotate(bool forward, List<Tuple<Item, int>> ammoList) {
 
 			Item[] inventory = player.inventory;
@@ -202,53 +202,5 @@ namespace AmmoCycle {
 
 			}
 		}
-
-		
-		// Checks the first ammo in inventory with the original first ammo.
-		private bool isDoneRotating(Item currentAmmo) {
-
-			Item[] inventory = player.inventory;
-
-			for (int i = ammoSlotStart; i < ammoSlotEnd; i++) {
-				if (inventory[i].ammo != AmmoID.None) {
-					if (inventory[i].type == currentAmmo.type) { // Check ammo slots for first instance of ammo.
-						mod.Logger.DebugFormat("isDoneRotating(): false | Slot {0}", i);
-						return false;
-					}
-
-					else {
-						mod.Logger.DebugFormat("isDoneRotating(): true | Slot {0} | i type: {1}", i, inventory[i].type);
-						return true;
-					}
-				}
-			}
-
-			for (int i = 0; i < inventoryLength; i++) {
-				if (inventory[i].ammo != AmmoID.None) {
-					if (inventory[i].type == currentAmmo.type) { // Check inventory for first instance.
-						mod.Logger.Debug("isDoneRotating returned false in inventory check");
-						return false;
-					}
-
-					else {
-						return true;
-					}
-				}
-
-			}
-
-			mod.Logger.Warn("Reached end of isDoneRotating()");
-			return true;
-		}
-		
-		// Check ignores non traditional ammo types like coins which are handled separately.
-		private bool isAmmo(Item item) {
-			if (item.ammo != AmmoID.None) {
-				return !item.notAmmo;
-			}
-
-			return false;
-		}
-		
 	}
 }
