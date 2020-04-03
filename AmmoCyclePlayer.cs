@@ -15,6 +15,7 @@ namespace AmmoCycle {
 		private const int inventoryLength = 50;
 		private const int ammoSlotStart = 54;
 		private const int ammoSlotEnd = 58;
+	
 
 		public override void ProcessTriggers(TriggersSet triggersSet) {
 
@@ -30,15 +31,16 @@ namespace AmmoCycle {
 		}
 
 		private void CycleAmmo(bool forward) {
-
-			// Do nothing if player is not holding weapon that uses ammo
+			
 			int heldAmmoID = player.HeldItem.useAmmo;
 
+			// Do nothing if player is not holding weapon that uses ammo
 			if (heldAmmoID == AmmoID.None) {
 				return;
 			}
 
-			else if (heldAmmoID == AmmoID.Coin) { // Handle coin ammo separately
+			// Handle coin ammo separately
+			else if (heldAmmoID == AmmoID.Coin) { 
 				return;
 			}
 
@@ -91,22 +93,25 @@ namespace AmmoCycle {
 				return;
 			}
 
-			// Cycles ammo in their slots by shifting first ammo item in inventory to the last place
-			// Then push other ammo items forward to replace previous slot.
-			// TODO: Make rotations play a sound
-			// TODO: Rotate additional times if there are multiple stacks of the same ammo.
+			// Cycles ammo in their slots by calculating number of steps to shift by (n)
+			// Then shift all elements n indexes to their new places
 
-			//int maxCycles = ammoList.Count + 1;
+			int cycles;
+			if (forward) {
+				cycles = calculateRotations(ammoList);
+				mod.Logger.DebugFormat("Cycles: {0}", cycles);
 
-			//do {
-			//	Rotate(forward, ammoList);
-			//	maxCycles--;
-			//} while (maxCycles > 0 && !isDoneRotating(currentAmmo));
-
-			int cycles = calculateRotations(ammoList);
-			mod.Logger.DebugFormat("Cycles: {0}", cycles);
+				if (cycles == 0) {
+					return;
+				}
+			}
+			
+			else {
+				cycles = calculateRotationsBack(ammoList);
+			}
 
 			Rotate(forward, cycles, ammoList);
+			Main.PlaySound(SoundID.Camera,-1, -1, 1, 1f, 0.25f);
 		}
 
 		private int calculateRotations(List<Tuple<Item,int>> ammoList) {
@@ -116,32 +121,58 @@ namespace AmmoCycle {
 				ret++;
 			}
 
-			return ret == ammoList.Count-1 ? 0 : ret;
+			return ret == ammoList.Count ? 0 : ret;
+		}
+
+		private int calculateRotationsBack(List<Tuple<Item, int>> ammoList) {
+			int ret = ammoList.Count - 1;
+
+			while (ret > 0 && ammoList[ret].Item1.type == ammoList[ret - 1].Item1.type) {
+				ret--;
+			}
+
+			return ret;
 		}
 		
 		private void Rotate(bool forward, int amount, List<Tuple<Item, int>> ammoList) {
+			if (amount <= 0) {
+				return;
+			}
 			
 			Item[] inventory = player.inventory;
 
 			if (forward) {
+				Tuple<Item, int>[] tempAmmoArr = new Tuple<Item,int>[amount];
 
-				while(amount --> 0) {
-					Tuple<Item, int> firstAmmo = ammoList[0];
-
-					for (int i = 1; i < ammoList.Count; i++) {
-						inventory[ammoList[i - 1].Item2] = ammoList[i].Item1;
-						mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})", 
-							ammoList[i - 1].Item2, ammoList[i].Item2, ammoList[i-1].Item1.type, ammoList[i].Item1.type);
-					}
-
-					
-
-					inventory[ammoList[ammoList.Count - 1].Item2] = firstAmmo.Item1;
-					mod.Logger.DebugFormat("Replace index {0}({2}) with {1}({3})",
-						ammoList[ammoList.Count - 1].Item2, firstAmmo.Item2, ammoList[ammoList.Count - 1].Item1.type, firstAmmo.Item1.type);
-					mod.Logger.Debug("Rotate.");
+				// Add first n elements to be sent to back to temp array
+				for (int i = 0; i < amount; i++) {
+					tempAmmoArr[i] = ammoList[i];
 				}
 
+				// Bring forward (ammoList.count - n) number of elements to front
+				for (int i = amount; i < ammoList.Count; i++) {
+					inventory[ammoList[i - amount].Item2] = ammoList[i].Item1;
+
+					mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
+							ammoList[i - 1].Item2, ammoList[i].Item2, ammoList[i - 1].Item1.type, ammoList[i].Item1.type);
+				}
+
+				// Replace last n elements of ammoList with original n elements.
+				int bringForward = ammoList.Count - amount;
+				for (int i = 0; i < amount; i++) {
+					inventory[ammoList[bringForward].Item2] = tempAmmoArr[i].Item1;
+
+					mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
+							ammoList[bringForward].Item2, tempAmmoArr[i].Item2, ammoList[bringForward].Item1.type, tempAmmoArr[i].Item1.type);
+
+					bringForward++;
+				}
+			}
+
+			else {
+				Tuple<Item, int>[] tempAmmoArr = new Tuple<Item, int>[amount];
+
+				for ()
 			}
 		}
 		
