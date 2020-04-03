@@ -1,4 +1,4 @@
 displayName = Ammo Cycle
 author = Deculsion
-version = 0.1.2.3
-homepage = https://github.com/Deculsion/AmmoCycle.git
+version = 0.1.3
+homepage = https://forums.terraria.org/index.php?threads/ammo-cycle-one-button-ammo-switching.87056/
