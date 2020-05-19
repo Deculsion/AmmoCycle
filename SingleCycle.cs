@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define DEBUG
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,14 +10,14 @@ using Terraria.ModLoader;
 using Terraria.GameInput;
 using Terraria.ID;
 
+
 namespace AmmoCycle {
-	class AmmoCyclePlayer : ModPlayer {
+	class SingleCycle : ModPlayer {
 
 		// Magic numbers for inventory slot indexes
 		private const int inventoryLength = 50; 
 		private const int ammoSlotStart = 54;
 		private const int ammoSlotEnd = 58;
-		private const Boolean DEBUG = false;
 
 		public override void ProcessTriggers(TriggersSet triggersSet) {
 
@@ -27,7 +28,6 @@ namespace AmmoCycle {
 			else if (AmmoCycle.TriggerAmmoCyclePrev.JustPressed) {
 				CycleAmmo(false);
 			}
-
 
 		}
 
@@ -48,23 +48,29 @@ namespace AmmoCycle {
 			Item[] inventory = player.inventory;
 			List<Tuple<Item, int>> ammoList = new List<Tuple<Item, int>>();
 
+#if (DEBUG)
 			Boolean isFirst = true;
-			Item currentAmmo = null;
 			int currentAmmoi = 0;
+#endif
+
+			Item currentAmmo = null;
+			
 
 			for (int i = ammoSlotStart; i < ammoSlotEnd; i++) {
 				if (inventory[i].ammo == heldAmmoID) {
 					ammoList.Add(new Tuple<Item, int>(inventory[i], i));
-
-					if (isFirst) // Save the first instance of ammo used in ammo inventory slots.
+#if (DEBUG)
+					if (isFirst) // Save the first instance of ammo used in ammo inventory slots for debugging purposes.
 					{
 						isFirst = false;
-						currentAmmo = inventory[i];
 						currentAmmoi = i;
-
 					}
+#endif
 				}
+
 			}
+
+			currentAmmo = ammoList[0].Item1;
 
 			for (int i = 0; i < inventoryLength; i++) {
 
@@ -83,7 +89,9 @@ namespace AmmoCycle {
 
 			}
 
-			if (DEBUG) mod.Logger.DebugFormat("currentAmmo  type: {0} | currentAmmo index: {1}", currentAmmo.type, currentAmmoi);
+#if (DEBUG)
+			mod.Logger.DebugFormat("currentAmmo  type: {0} | currentAmmo index: {1}", currentAmmo.type, currentAmmoi);
+#endif
 
 			if (ammoList.Count <= 1) {
 				return;
@@ -105,8 +113,9 @@ namespace AmmoCycle {
 			else {
 				cycles = calculateRotationsBack(ammoList);
 			}
-
-			if (DEBUG) mod.Logger.DebugFormat("Cycles: {0}", cycles);
+#if (DEBUG)
+			mod.Logger.DebugFormat("Cycles: {0}", cycles);
+#endif
 
 			if (cycles == 0) {
 				return;
@@ -157,8 +166,10 @@ namespace AmmoCycle {
 			for (int i = amount; i < ammoList.Count; i++) {
 				inventory[ammoList[i - amount].Item2] = ammoList[i].Item1;
 
-				if (DEBUG) mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
+#if (DEBUG)
+				mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
 						ammoList[i - 1].Item2, ammoList[i].Item2, ammoList[i - 1].Item1.type, ammoList[i].Item1.type);
+#endif
 			}
 
 			// Replace last n elements of ammoList with original n elements.
@@ -166,8 +177,10 @@ namespace AmmoCycle {
 			for (int i = 0; i < amount; i++) {
 				inventory[ammoList[bringForward].Item2] = tempAmmoArr[i].Item1;
 
-				if (DEBUG) mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
+#if (DEBUG)
+				mod.Logger.DebugFormat("Swap index {0}({2}) with {1}({3})",
 						ammoList[bringForward].Item2, tempAmmoArr[i].Item2, ammoList[bringForward].Item1.type, tempAmmoArr[i].Item1.type);
+#endif
 
 				bringForward++;
 			}
