@@ -15,9 +15,6 @@ namespace AmmoCycle {
 	class SingleCycle : ModPlayer {
 
 		// Magic numbers for inventory slot indexes
-		private const int INVENTORYLENGTH = 50; 
-		private const int AMMOSLOTSTART = 54;
-		private const int AMMOSLOTEND = 58;
 
 		public override void ProcessTriggers(TriggersSet triggersSet) {
 
@@ -56,7 +53,7 @@ namespace AmmoCycle {
 			Item currentAmmo = null;
 			
 
-			for (int i = AMMOSLOTSTART; i < AMMOSLOTEND; i++) {
+			for (int i = CONSTANTS.AMMOSLOTSTART; i < CONSTANTS.AMMOSLOTEND; i++) {
 				if (inventory[i].ammo == heldAmmoID) {
 					ammoList.Add(new Tuple<Item, int>(inventory[i], i));
 #if (DEBUG)
@@ -72,7 +69,7 @@ namespace AmmoCycle {
 
 			currentAmmo = ammoList[0].Item1;
 
-			for (int i = 0; i < INVENTORYLENGTH; i++) {
+			for (int i = 0; i < CONSTANTS.INVENTORYLENGTH; i++) {
 
 				if (inventory[i].ammo == heldAmmoID) {
 
