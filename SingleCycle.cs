@@ -52,7 +52,6 @@ namespace AmmoCycle {
 
 			Item currentAmmo = null;
 			
-
 			for (int i = CONSTANTS.AMMOSLOTSTART; i < CONSTANTS.AMMOSLOTEND; i++) {
 				if (inventory[i].ammo == heldAmmoID) {
 					ammoList.Add(new Tuple<Item, int>(inventory[i], i));
