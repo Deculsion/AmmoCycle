@@ -14,8 +14,6 @@ using Terraria.ID;
 namespace AmmoCycle {
 	class SingleCycle : ModPlayer {
 
-		// Magic numbers for inventory slot indexes
-
 		public override void ProcessTriggers(TriggersSet triggersSet) {
 
 
