@@ -6,8 +6,13 @@ using Terraria.ModLoader;
 
 namespace AmmoCycle {
 	class FixAmmoUseList {
+		private static FixAmmoUseList fixAmmouseList;
 		private List<Tuple<Item, Item>> ammoList = new List<Tuple<Item, Item>>();
 		private static Mod mod = ModContent.GetInstance<AmmoCycle>();
+
+		public static FixAmmoUseList Instance {
+			get { return fixAmmouseList ?? (fixAmmouseList = new FixAmmoUseList()); }
+		}
 
 		public void AddAmmoPair(Item weapon, Item ammo) {
 			RemoveAmmoPair(weapon);

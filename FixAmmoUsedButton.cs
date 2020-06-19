@@ -7,7 +7,7 @@ using Terraria.ID;
 namespace AmmoCycle {
 	class FixAmmoUsedButton : ModPlayer {
 
-		private FixAmmoUseList ammoList = new FixAmmoUseList();
+		private FixAmmoUseList fixedAmmoList = FixAmmoUseList.Instance;
 
 		public override void ProcessTriggers(TriggersSet triggersSet) {
 			if (AmmoCycle.TriggerAmmoFix.JustPressed) {
@@ -44,20 +44,20 @@ namespace AmmoCycle {
 
 			// Register current weapon/ammo pair to first ammo found.
 			if (currentAmmo != null &&
-				ammoList.GetAmmoValue(currentWeapon) != null &&
-				currentAmmo.type != ammoList.GetAmmoValue(currentWeapon).type) {
+				fixedAmmoList.GetAmmoValue(currentWeapon) != null &&
+				currentAmmo.type != fixedAmmoList.GetAmmoValue(currentWeapon).type) {
 #if (DEBUG)
 				mod.Logger.DebugFormat("Adding weapon/ammo pair {0}/{1}", currentWeapon, currentAmmo == null ? "null" : currentAmmo.Name);
 #endif
-				ammoList.AddAmmoPair(currentWeapon, currentAmmo);
+				fixedAmmoList.AddAmmoPair(currentWeapon, currentAmmo);
 				
 			}
 
-			else if (currentAmmo.type == ammoList.GetAmmoValue(currentWeapon).type) {
+			else if (currentAmmo.type == fixedAmmoList.GetAmmoValue(currentWeapon).type) {
 #if (DEBUG)
 				mod.Logger.DebugFormat("Removing weapon/ammo pair {0}/{1}", currentWeapon, currentAmmo == null ? "null" : currentAmmo.Name);
 #endif
-				ammoList.RemoveAmmoPair(currentWeapon);
+				fixedAmmoList.RemoveAmmoPair(currentWeapon);
 			}
 
 			else {
@@ -65,7 +65,7 @@ namespace AmmoCycle {
 			}
 
 #if (DEBUG)
-			ammoList.PrintList();
+			fixedAmmoList.PrintList();
 #endif
 
 		}
